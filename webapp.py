@@ -76,6 +76,11 @@ def send_request_to_convai(user_input):
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
 
+@app.route("/")
+def health_check():
+    """Health check route for the application."""
+    return "Service is live!", 200
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
@@ -115,4 +120,6 @@ def chat():
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    import os
+    port = int(os.environ.get("PORT", 5000))  # Use PORT environment variable or default to 5000
+    app.run(host="0.0.0.0", port=port)
