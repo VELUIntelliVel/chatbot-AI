@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 from googletrans import Translator
 from concurrent.futures import ThreadPoolExecutor
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -21,7 +23,10 @@ user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
 def detect_language(text):
     """Detects the language of the given text."""
-    return detect(text)
+    try:
+        return detect(text)
+    except LangDetectException:
+        return "unknown"
 
 def translate_text(text, target_lang="en"):
     """Translates text into the target language."""
@@ -40,18 +45,18 @@ def get_wikipedia_summary(query):
     }
 
     headers = {'User-Agent': user_agent}
-    response = requests.get(url, params=params, headers=headers)
-
-    if response.status_code == 200:
+    try:
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
         data = response.json()
         pages = data['query']['pages']
         page = next(iter(pages.values()))
         if 'extract' in page:
             return page['extract']
         else:
-            return "No Wikipedia page found for the given query."
-    else:
-        return "Error: Failed to fetch data from Wikipedia."
+            return "No relevant information found on Wikipedia for this query."
+    except Exception as e:
+        return f"Error fetching data from Wikipedia: {e}"
 
 def send_request_to_convai(user_input):
     """Sends a request to the Conva.ai API."""
@@ -65,7 +70,7 @@ def send_request_to_convai(user_input):
     }
 
     try:
-        response = requests.post(url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, json=payload)  # Use json=payload
         response.raise_for_status()
         return response.json().get("text", "No response available.")
     except requests.exceptions.RequestException as e:
@@ -107,7 +112,7 @@ def chat():
         return jsonify({"response": bot_response_translated})
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
