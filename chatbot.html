@@ -13,7 +13,7 @@
         }
         body {
             font-family: Arial, sans-serif;
-            background: url("{{ url_for('static', filename='AI.gif.gif') }}") no-repeat center center fixed;
+            background: url('/static/AI.gif.gif') no-repeat center center fixed; /* Correct path for static file */
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -103,17 +103,17 @@
         async function sendMessage() {
             const message = userInput.value.trim();
             if (!message) return;
-
+            
             // Display user's message
             const userMessageDiv = document.createElement('div');
             userMessageDiv.className = 'user-message';
             userMessageDiv.textContent = message;
             messagesDiv.appendChild(userMessageDiv);
-
+            
             // Clear input and scroll down
             userInput.value = '';
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
+            
             // Show loading animation
             loadingDiv.style.display = 'block';
 
@@ -128,13 +128,14 @@
                 });
 
                 const data = await response.json();
-
+                
                 // Hide loading animation
                 loadingDiv.style.display = 'none';
 
                 // Display bot's response with the prefix "IntelliVel:" (bold and styled)
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-message';
+
                 if (data.response) {
                     const intelliVelText = document.createElement('span');
                     intelliVelText.className = 'intellivel';  // Apply bold style
@@ -144,13 +145,12 @@
                 } else {
                     botMessageDiv.textContent = "Error: Unable to get a response.";
                 }
+
                 messagesDiv.appendChild(botMessageDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
             } catch (error) {
                 // Hide loading animation
                 loadingDiv.style.display = 'none';
-
                 // Display error message
                 const errorMessageDiv = document.createElement('div');
                 errorMessageDiv.className = 'bot-message';
