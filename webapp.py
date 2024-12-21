@@ -12,6 +12,10 @@ SESSION_ID = -1
 # User-agent for Wikipedia requests
 user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
+@app.route("/", methods=["GET"])
+def home():
+    return "Welcome to the Chatbot API! Please use the /chat endpoint.", 200
+
 def get_wikipedia_summary(query):
     """Fetches a summary from Wikipedia for the given query using requests."""
     url = f'https://en.wikipedia.org/w/api.php'
