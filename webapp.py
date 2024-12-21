@@ -1,10 +1,9 @@
+import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import requests
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
 from googletrans import Translator
-from concurrent.futures import ThreadPoolExecutor
 import json
 
 app = Flask(__name__)
@@ -21,6 +20,7 @@ SESSION_ID = -1
 # User-agent for Wikipedia requests
 user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
+# Define functions before using them in the routes
 def detect_language(text):
     """Detects the language of the given text."""
     try:
@@ -76,6 +76,8 @@ def send_request_to_convai(user_input):
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
 
+# Define the routes after function definitions
+
 @app.route("/")
 def health_check():
     """Health check route for the application."""
@@ -119,7 +121,16 @@ def chat():
     except Exception as e:
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
+# Test the API from within the script (this runs only if the script is executed directly)
 if __name__ == "__main__":
     import os
-    port = int(os.environ.get("PORT", 5000))  # Use PORT environment variable or default to 5000
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
+    # Send a test POST request to the Flask API
+    url = "http://127.0.0.1:5000/chat"
+    headers = {"Content-Type": "application/json"}
+    data = {"message": "Hello, how are you?"}
+
+    response = requests.post(url, headers=headers, json=data)
+    print(response.json())
