@@ -14,7 +14,7 @@ user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
 @app.route("/", methods=["GET"])
 def home():
-    return "Welcome to the Chatbot API! Please use the /chat endpoint.", 200
+    return render_template("chatbot.html")
 
 def get_wikipedia_summary(query):
     """Fetches a summary from Wikipedia for the given query using requests."""
