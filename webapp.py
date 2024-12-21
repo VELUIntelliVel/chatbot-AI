@@ -1,6 +1,7 @@
 import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_cors import cross_origin
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
 from googletrans import Translator
@@ -65,6 +66,7 @@ def health_check():
     return "Service is live!", 200
 
 @app.route("/chat", methods=["POST"])
+@cross_origin()
 def chat():
     try:
         data = request.json
