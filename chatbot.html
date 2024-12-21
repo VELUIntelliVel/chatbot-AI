@@ -11,7 +11,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: Arial, sans-serif;
             background: url("{{ url_for('static', filename='AI.gif.gif') }}") no-repeat center center fixed;
@@ -22,7 +21,6 @@
             height: 100vh;
             color: white;
         }
-
         #chat-container {
             background: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
@@ -35,7 +33,6 @@
             padding: 10px;
             overflow: hidden;
         }
-
         #messages {
             flex: 1;
             overflow-y: auto;
@@ -44,39 +41,32 @@
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
         }
-
         #messages div {
             margin-bottom: 10px;
         }
-
         .user-message {
             text-align: right;
             color: lightblue;
         }
-
         .bot-message {
             text-align: left;
             color: lightgreen;
         }
-
         #loading {
             text-align: center;
             color: lightgray;
             display: none;
         }
-
         #input-container {
             display: flex;
             align-items: center;
         }
-
         #user-input {
             flex: 1;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid gray;
         }
-
         #send-button {
             margin-left: 10px;
             padding: 10px;
@@ -86,11 +76,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
         #send-button:hover {
             background: #45a049;
         }
-
         /* Style for the bold IntelliVel prefix */
         .intellivel {
             font-weight: bold;
@@ -107,7 +95,6 @@
             <button id="send-button" onclick="sendMessage()">Send</button>
         </div>
     </div>
-
     <script>
         const messagesDiv = document.getElementById('messages');
         const userInput = document.getElementById('user-input');
