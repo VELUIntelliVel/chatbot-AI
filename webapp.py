@@ -78,5 +78,9 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/chat", methods=["GET"])
+def chat_get():
+    return "This endpoint only supports POST requests.", 405
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
