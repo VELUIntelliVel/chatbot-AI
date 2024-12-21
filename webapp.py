@@ -4,10 +4,10 @@ from flask_cors import CORS
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
 from googletrans import Translator
-import json
 
+# Flask application setup
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes
 
 # Initialize Translator
 translator = Translator()
@@ -20,7 +20,7 @@ SESSION_ID = -1
 # User-agent for Wikipedia requests
 user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
-# Define functions before using them in the routes
+# Helper Functions
 def detect_language(text):
     """Detects the language of the given text."""
     try:
@@ -30,12 +30,15 @@ def detect_language(text):
 
 def translate_text(text, target_lang="en"):
     """Translates text into the target language."""
-    translated = translator.translate(text, dest=target_lang)
-    return translated.text
+    try:
+        translated = translator.translate(text, dest=target_lang)
+        return translated.text
+    except Exception as e:
+        return f"Translation error: {str(e)}"
 
 def get_wikipedia_summary(query):
-    """Fetches a summary from Wikipedia for the given query using requests."""
-    url = f'https://en.wikipedia.org/w/api.php'
+    """Fetches a summary from Wikipedia for the given query."""
+    url = 'https://en.wikipedia.org/w/api.php'
     params = {
         'action': 'query',
         'format': 'json',
@@ -43,7 +46,6 @@ def get_wikipedia_summary(query):
         'exintro': True,
         'titles': query
     }
-
     headers = {'User-Agent': user_agent}
     try:
         response = requests.get(url, params=params, headers=headers)
@@ -56,7 +58,7 @@ def get_wikipedia_summary(query):
         else:
             return "No relevant information found on Wikipedia for this query."
     except Exception as e:
-        return f"Error fetching data from Wikipedia: {e}"
+        return f"Error fetching data from Wikipedia: {str(e)}"
 
 def send_request_to_convai(user_input):
     """Sends a request to the Conva.ai API."""
@@ -68,30 +70,28 @@ def send_request_to_convai(user_input):
         "sessionID": SESSION_ID,
         "voiceResponse": "false"
     }
-
     try:
-        response = requests.post(url, headers=headers, json=payload)  # Use json=payload
+        response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
         return response.json().get("text", "No response available.")
     except requests.exceptions.RequestException as e:
-        return f"Error: {e}"
+        return f"Error communicating with Conva.ai: {str(e)}"
 
-# Define the routes after function definitions
-
+# Routes
 @app.route("/")
 def health_check():
-    """Health check route for the application."""
+    """Health check route."""
     return "Service is live!", 200
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.json
-    user_message = data.get("message", "")
-
-    if not user_message:
-        return jsonify({"error": "Message is required"}), 400
-
     try:
+        data = request.json
+        user_message = data.get("message", "").strip()
+
+        if not user_message:
+            return jsonify({"error": "Message is required."}), 400
+
         # Detect user language
         detected_lang = detect_language(user_message)
 
@@ -103,14 +103,14 @@ def chat():
 
         # Determine whether to fetch from Wikipedia or use Conva.ai
         if "what is" in user_message_translated.lower() or "explain" in user_message_translated.lower():
-            # Assume general knowledge question and fetch from Wikipedia
+            # General knowledge question
             query = user_message_translated.split("what is")[-1].strip()
             bot_response = get_wikipedia_summary(query)
         else:
-            # Otherwise, use Conva.ai for character responses
+            # Use Conva.ai for responses
             bot_response = send_request_to_convai(user_message_translated)
 
-        # Translate response back to user language
+        # Translate bot response back to user language if necessary
         if detected_lang != "en":
             bot_response_translated = translate_text(bot_response, target_lang=detected_lang)
         else:
@@ -121,16 +121,8 @@ def chat():
     except Exception as e:
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
-# Test the API from within the script (this runs only if the script is executed directly)
+# Entry point for the application
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-    # Send a test POST request to the Flask API
-    url = "http://127.0.0.1:5000/chat"
-    headers = {"Content-Type": "application/json"}
-    data = {"message": "Hello, how are you?"}
-
-    response = requests.post(url, headers=headers, json=data)
-    print(response.json())
