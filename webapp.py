@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify,render_template
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
 CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
+
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
 CHARACTER_ID = "32a6a8bc-b656-11ef-b082-42010a7be016"
@@ -14,7 +15,10 @@ user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
 @app.route("/", methods=["GET"])
 def home():
-    return render_template("chatbot.html")
+    # Render the chatbot.html and print the rendered HTML for debugging
+    html = render_template("chatbot.html")
+    print("Rendered HTML for debugging:\n", html)  # Debug the rendered HTML
+    return html
 
 def get_wikipedia_summary(query):
     """Fetches a summary from Wikipedia for the given query using requests."""
