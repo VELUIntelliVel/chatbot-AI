@@ -1,34 +1,45 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from langdetect import detect, LangDetectException
-from googletrans import Translator
 import requests
 
-# Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
-# Translator and API Configurations
-translator = Translator()
+# Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
 CHARACTER_ID = "32a6a8bc-b656-11ef-b082-42010a7be016"
 SESSION_ID = -1
 
-# Helper Functions
-def detect_language(text):
-    try:
-        return detect(text)
-    except LangDetectException:
-        return "unknown"
+# User-agent for Wikipedia requests
+user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
-def translate_text(text, target_lang="en"):
-    try:
-        translated = translator.translate(text, dest=target_lang)
-        return translated.text
-    except Exception:
-        return text  # Return the original text if translation fails
+def get_wikipedia_summary(query):
+    """Fetches a summary from Wikipedia for the given query using requests."""
+    url = f'https://en.wikipedia.org/w/api.php'
+    params = {
+        'action': 'query',
+        'format': 'json',
+        'prop': 'extracts',
+        'exintro': True,
+        'titles': query
+    }
+
+    headers = {'User-Agent': user_agent}
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        pages = data['query']['pages']
+        page = next(iter(pages.values()))
+        if 'extract' in page:
+            return page['extract']
+        else:
+            return "No Wikipedia page found for the given query."
+    else:
+        return "Error: Failed to fetch data from Wikipedia."
 
 def send_request_to_convai(user_input):
+    """Sends a request to the Conva.ai API."""
     url = "https://api.convai.com/character/getResponse"
     headers = {"CONVAI-API-KEY": API_KEY}
     payload = {
@@ -37,46 +48,36 @@ def send_request_to_convai(user_input):
         "sessionID": SESSION_ID,
         "voiceResponse": "false"
     }
+
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, data=payload)
         response.raise_for_status()
         return response.json().get("text", "No response available.")
-    except requests.exceptions.RequestException:
-        return "Error communicating with the chatbot service."
-
-# Routes
-@app.route("/")
-def health_check():
-    return "Service is live!", 200
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    data = request.json
+    user_message = data.get("message", "")
+
+    if not user_message:
+        return jsonify({"error": "Message is required"}), 400
+
     try:
-        data = request.json
-        if not data or "message" not in data:
-            return jsonify({"error": "Invalid request. 'message' is required."}), 400
+        # Determine whether to fetch from Wikipedia or use Conva.ai
+        if "what is" in user_message.lower() or "explain" in user_message.lower():
+            # Assume general knowledge question and fetch from Wikipedia
+            query = user_message.split("what is")[-1].strip()
+            bot_response = get_wikipedia_summary(query)
+        else:
+            # Otherwise, use Conva.ai for character responses
+            bot_response = send_request_to_convai(user_message)
 
-        user_message = data["message"].strip()
-        if not user_message:
-            return jsonify({"error": "Message cannot be empty."}), 400
-
-        # Detect language and translate if necessary
-        detected_lang = detect_language(user_message)
-        user_message_translated = translate_text(user_message, target_lang="en") if detected_lang != "en" else user_message
-
-        # Get chatbot response
-        bot_response = send_request_to_convai(user_message_translated)
-
-        # Translate response back to user's language if needed
-        final_response = translate_text(bot_response, target_lang=detected_lang) if detected_lang != "en" else bot_response
-
-        return jsonify({"response": final_response}), 200
+        return jsonify({"response": bot_response})
 
     except Exception as e:
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 500
 
-# Main
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000)
