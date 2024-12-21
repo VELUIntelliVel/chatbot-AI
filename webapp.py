@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template,send_from_directory
 from flask_cors import CORS
 import requests
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
 
 # Conva.ai API Configuration
@@ -12,6 +13,12 @@ SESSION_ID = -1
 
 # User-agent for Wikipedia requests
 user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
+
+@app.route('/static/AI.gif.gif')
+def custom_static(AI.gif.gif):
+    # This will serve static files from the static directory
+    return send_from_directory(os.path.join(app.root_path, 'static'), AI.gif.gif)
+
 
 @app.route("/", methods=["GET"])
 def home():
