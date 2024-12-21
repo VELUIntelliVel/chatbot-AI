@@ -64,17 +64,24 @@ def send_request_to_convai(user_input):
 def health_check():
     return "Service is live!", 200
 
-@app.route("/chat", methods=["POST"])
+@app.route("/chat", methods=["GET", "POST"])
 def chat():
-    try:
-        # Log incoming request data
-        print("Received request:", request.json)
+    if request.method == "GET":
+        return jsonify({"message": "Use POST to send messages to the chatbot."}), 200
 
+    # Handle POST requests as usual
+    try:
         data = request.json
         user_message = data.get("message", "").strip()
 
         if not user_message:
             return jsonify({"error": "Message is required."}), 400
+
+        # Process the chat logic
+        return jsonify({"response": "Chatbot response goes here!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
         # Log detected language
         detected_lang = detect_language(user_message)
