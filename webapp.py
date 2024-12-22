@@ -15,14 +15,11 @@ user_agent = 'ChatbotAI/1.0 (no-website.com; contact@placeholder.com)'
 
 @app.route("/", methods=["GET"])
 def home():
-    # Render the chatbot.html and print the rendered HTML for debugging
-    html = render_template("chatbot.html")
-    print("Rendered HTML for debugging:\n", html)  # Debug the rendered HTML
-    return html
+    return render_template("chatbot.html")
 
 def get_wikipedia_summary(query):
     """Fetches a summary from Wikipedia for the given query using requests."""
-    url = f'https://en.wikipedia.org/w/api.php'
+    url = 'https://en.wikipedia.org/w/api.php'
     params = {
         'action': 'query',
         'format': 'json',
@@ -30,7 +27,6 @@ def get_wikipedia_summary(query):
         'exintro': True,
         'titles': query
     }
-
     headers = {'User-Agent': user_agent}
     response = requests.get(url, params=params, headers=headers)
 
@@ -74,15 +70,12 @@ def chat():
     try:
         # Determine whether to fetch from Wikipedia or use Conva.ai
         if "what is" in user_message.lower() or "explain" in user_message.lower():
-            # Assume general knowledge question and fetch from Wikipedia
             query = user_message.split("what is")[-1].strip()
             bot_response = get_wikipedia_summary(query)
         else:
-            # Otherwise, use Conva.ai for character responses
             bot_response = send_request_to_convai(user_message)
 
         return jsonify({"response": bot_response})
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
