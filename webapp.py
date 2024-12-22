@@ -4,7 +4,7 @@ import requests
 import os
 
 app = Flask(__name__, static_folder='static')
-CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
+CORS(app)
 
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
