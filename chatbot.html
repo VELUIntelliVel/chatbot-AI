@@ -86,8 +86,7 @@
     </div>
    <script>
     // Backend URL dynamically set to match the origin of the deployed application
-    const backendUrl = window.location.origin + "/chat";
-
+    const backendUrl = "/chat";
     async function sendMessage() {
         const message = userInput.value.trim();
         if (!message) return;
