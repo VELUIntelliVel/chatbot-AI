@@ -3,7 +3,7 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
+CORS(app)  # Allow requests from any origin
 
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
@@ -18,7 +18,7 @@ def home():
     return render_template("chatbot.html")
 
 def get_wikipedia_summary(query):
-    """Fetches a summary from Wikipedia for the given query using requests."""
+    """Fetches a summary from Wikipedia for the given query."""
     url = 'https://en.wikipedia.org/w/api.php'
     params = {
         'action': 'query',
@@ -53,7 +53,7 @@ def send_request_to_convai(user_input):
     }
 
     try:
-        response = requests.post(url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
         return response.json().get("text", "No response available.")
     except requests.exceptions.RequestException as e:
@@ -68,7 +68,7 @@ def chat():
         return jsonify({"error": "Message is required"}), 400
 
     try:
-        # Determine whether to fetch from Wikipedia or use Conva.ai
+        # Check for Wikipedia query
         if "what is" in user_message.lower() or "explain" in user_message.lower():
             query = user_message.split("what is")[-1].strip()
             bot_response = get_wikipedia_summary(query)
@@ -84,4 +84,4 @@ def chat_get():
     return "This endpoint only supports POST requests.", 405
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=5000)
