@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify,render_template
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
 CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
+
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
 CHARACTER_ID = "32a6a8bc-b656-11ef-b082-42010a7be016"
@@ -87,15 +88,4 @@ def chat_get():
     return "This endpoint only supports POST requests.", 405
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000). you add this in my code.                                                                 from flask import Flask, render_template
-
-app = Flask(__name__)
-
-@app.route("/", methods=["GET"])
-def home():
-    html = render_template("chatbot.html")
-    print(html)  # Debug the rendered HTML
-    return html
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
