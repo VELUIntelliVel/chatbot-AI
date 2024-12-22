@@ -3,7 +3,8 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from any origin
+CORS(app, resources={r"/*": {"origins": "*"}})
+  # Allow requests from any origin
 
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
