@@ -84,56 +84,50 @@
             <button id="send-button" onclick="sendMessage()">Send</button>
         </div>
     </div>
-    <script>
-        const backendUrl = window.location.origin + "/chat";
+   <script>
+    // Backend URL dynamically set to match the origin of the deployed application
+    const backendUrl = window.location.origin + "/chat";
 
-        async function sendMessage() {
-            const message = document.getElementById('user-input').value.trim();
-            if (!message) return;
+    async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
 
-            const messagesDiv = document.getElementById('messages');
-            const loadingDiv = document.getElementById('loading');
-            const userInput = document.getElementById('user-input');
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'user-message';
+        userMessageDiv.textContent = message;
+        messagesDiv.appendChild(userMessageDiv);
 
-            // Display user's message
-            const userMessageDiv = document.createElement('div');
-            userMessageDiv.className = 'user-message';
-            userMessageDiv.textContent = message;
-            messagesDiv.appendChild(userMessageDiv);
-            userInput.value = '';
+        userInput.value = '';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-            // Show loading
-            loadingDiv.style.display = 'block';
+        loadingDiv.style.display = 'block';
 
-            try {
-                const response = await fetch(backendUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ message })
-                });
+        try {
+            const response = await fetch(backendUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message })
+            });
 
-                const data = await response.json();
-                loadingDiv.style.display = 'none';
+            const data = await response.json();
+            loadingDiv.style.display = 'none';
 
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'bot-message';
-                botMessageDiv.textContent = data.response || "Error: Unable to get a response.";
-                messagesDiv.appendChild(botMessageDiv);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            } catch (error) {
-                loadingDiv.style.display = 'none';
-                const errorMessageDiv = document.createElement('div');
-                errorMessageDiv.className = 'bot-message';
-                errorMessageDiv.textContent = "Error: Could not connect to the server.";
-                messagesDiv.appendChild(errorMessageDiv);
-            }
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'bot-message';
+            botMessageDiv.textContent = data.response || "Error: Unable to get a response.";
+            messagesDiv.appendChild(botMessageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        } catch (error) {
+            loadingDiv.style.display = 'none';
+            const errorMessageDiv = document.createElement('div');
+            errorMessageDiv.className = 'bot-message';
+            errorMessageDiv.textContent = "Error: Could not connect to the server.";
+            messagesDiv.appendChild(errorMessageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-
-        document.getElementById('user-input').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') sendMessage();
-        });
-    </script>
+    }
+</script>
 </body>
 </html>
