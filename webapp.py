@@ -1,12 +1,9 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify,render_template
 from flask_cors import CORS
 import requests
-import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
-# Allow requests from any origin
-
+CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
 CHARACTER_ID = "32a6a8bc-b656-11ef-b082-42010a7be016"
@@ -20,8 +17,8 @@ def home():
     return render_template("chatbot.html")
 
 def get_wikipedia_summary(query):
-    """Fetches a summary from Wikipedia for the given query."""
-    url = 'https://en.wikipedia.org/w/api.php'
+    """Fetches a summary from Wikipedia for the given query using requests."""
+    url = f'https://en.wikipedia.org/w/api.php'
     params = {
         'action': 'query',
         'format': 'json',
@@ -29,6 +26,7 @@ def get_wikipedia_summary(query):
         'exintro': True,
         'titles': query
     }
+
     headers = {'User-Agent': user_agent}
     response = requests.get(url, params=params, headers=headers)
 
@@ -55,7 +53,7 @@ def send_request_to_convai(user_input):
     }
 
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, data=payload)
         response.raise_for_status()
         return response.json().get("text", "No response available.")
     except requests.exceptions.RequestException as e:
@@ -70,14 +68,17 @@ def chat():
         return jsonify({"error": "Message is required"}), 400
 
     try:
-        # Check for Wikipedia query
+        # Determine whether to fetch from Wikipedia or use Conva.ai
         if "what is" in user_message.lower() or "explain" in user_message.lower():
+            # Assume general knowledge question and fetch from Wikipedia
             query = user_message.split("what is")[-1].strip()
             bot_response = get_wikipedia_summary(query)
         else:
+            # Otherwise, use Conva.ai for character responses
             bot_response = send_request_to_convai(user_message)
 
         return jsonify({"response": bot_response})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -86,5 +87,15 @@ def chat_get():
     return "This endpoint only supports POST requests.", 405
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000). you add this in my code.                                                                 from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route("/", methods=["GET"])
+def home():
+    html = render_template("chatbot.html")
+    print(html)  # Debug the rendered HTML
+    return html
+
+if __name__ == "__main__":
+    app.run(debug=True)
