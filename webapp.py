@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
+import logging
 
 app = Flask(__name__)
 CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
+
+# Set up logging to capture more detailed error info
+logging.basicConfig(level=logging.DEBUG)
 
 # Conva.ai API Configuration
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
@@ -40,6 +44,7 @@ def get_wikipedia_summary(query):
         else:
             return "No Wikipedia page found for the given query."
     else:
+        logging.error(f"Failed to fetch Wikipedia summary. Status code: {response.status_code}")
         return "Error: Failed to fetch data from Wikipedia."
 
 def send_request_to_convai(user_input):
@@ -58,6 +63,7 @@ def send_request_to_convai(user_input):
         response.raise_for_status()
         return response.json().get("text", "No response available.")
     except requests.exceptions.RequestException as e:
+        logging.error(f"Request failed: {e}")
         return f"Error: {e}"
 
 @app.route("/chat", methods=["POST"])
@@ -81,6 +87,7 @@ def chat():
         return jsonify({"response": bot_response})
 
     except Exception as e:
+        logging.error(f"Error processing the request: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/chat", methods=["GET"])
