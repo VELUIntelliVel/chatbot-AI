@@ -5,23 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot with Flask</title>
     <style>
-        * {
+        body {
+            background: url('/static/images/AI.gif.gif') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            color: white;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: url('/static/images/ai.gif') no-repeat center center fixed;
-            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
         }
         #chat-container {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             border-radius: 10px;
             width: 90%;
             max-width: 500px;
@@ -30,15 +27,14 @@
             display: flex;
             flex-direction: column;
             padding: 10px;
-            overflow: hidden;
         }
         #messages {
             flex: 1;
             overflow-y: auto;
             margin-bottom: 10px;
             padding: 10px;
-            border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
         }
         #messages div {
             margin-bottom: 10px;
@@ -58,13 +54,12 @@
         }
         #input-container {
             display: flex;
-            align-items: center;
         }
         #user-input {
             flex: 1;
             padding: 10px;
-            border-radius: 5px;
             border: 1px solid gray;
+            border-radius: 5px;
         }
         #send-button {
             margin-left: 10px;
@@ -78,10 +73,6 @@
         #send-button:hover {
             background: #45a049;
         }
-        .intellivel {
-            font-weight: bold;
-            color: lightblue;
-        }
     </style>
 </head>
 <body>
@@ -94,23 +85,24 @@
         </div>
     </div>
     <script>
-        const messagesDiv = document.getElementById('messages');
-        const userInput = document.getElementById('user-input');
-        const loadingDiv = document.getElementById('loading');
-
         const backendUrl = window.location.origin + "/chat";
 
         async function sendMessage() {
-            const message = userInput.value.trim();
+            const message = document.getElementById('user-input').value.trim();
             if (!message) return;
 
+            const messagesDiv = document.getElementById('messages');
+            const loadingDiv = document.getElementById('loading');
+            const userInput = document.getElementById('user-input');
+
+            // Display user's message
             const userMessageDiv = document.createElement('div');
             userMessageDiv.className = 'user-message';
             userMessageDiv.textContent = message;
             messagesDiv.appendChild(userMessageDiv);
-
             userInput.value = '';
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Show loading
             loadingDiv.style.display = 'block';
 
             try {
@@ -123,21 +115,11 @@
                 });
 
                 const data = await response.json();
-
                 loadingDiv.style.display = 'none';
 
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-message';
-
-                if (data.response) {
-                    const intelliVelText = document.createElement('span');
-                    intelliVelText.className = 'intellivel';
-                    intelliVelText.textContent = "IntelliVel: ";
-                    botMessageDiv.appendChild(intelliVelText);
-                    botMessageDiv.appendChild(document.createTextNode(data.response));
-                } else {
-                    botMessageDiv.textContent = "Error: Unable to get a response.";
-                }
+                botMessageDiv.textContent = data.response || "Error: Unable to get a response.";
                 messagesDiv.appendChild(botMessageDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             } catch (error) {
@@ -146,14 +128,11 @@
                 errorMessageDiv.className = 'bot-message';
                 errorMessageDiv.textContent = "Error: Could not connect to the server.";
                 messagesDiv.appendChild(errorMessageDiv);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
         }
 
-        userInput.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+        document.getElementById('user-input').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') sendMessage();
         });
     </script>
 </body>
