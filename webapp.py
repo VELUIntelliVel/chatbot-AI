@@ -18,6 +18,8 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route("/", methods=["GET"])
 def home():
     logging.debug("Serving chatbot.html")
+    from flask import url_for
+    print(url_for('static', filename='image/AI.gif.gif'))  # This logs the generated URL
     return render_template("chatbot.html")
 
 def send_request_to_convai(user_message):
