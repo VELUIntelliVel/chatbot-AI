@@ -6,7 +6,7 @@ import logging
 
 app = Flask(__name__)
 # Allow requests from all origins
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "https://chatbot-ai-1-zb7c.onrender.com"}})
 
 # Configure API credentials
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
@@ -47,13 +47,18 @@ def chat():
         user_message = data.get("message", "").strip()
 
         if not user_message:
+            logging.error("Empty message received")
             return jsonify({"error": "Message is required"}), 400
 
+        logging.debug(f"User message received: {user_message}")
         bot_response = send_request_to_convai(user_message)
+        logging.debug(f"Bot response: {bot_response}")
+
         return jsonify({"response": bot_response})
     except Exception as e:
         logging.error(f"Error processing chat request: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
