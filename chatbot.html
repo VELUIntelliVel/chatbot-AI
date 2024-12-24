@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot with Flask</title>
     <style>
-             body {
-            background: #000; /* Black background or another color */
+        body {
+            background: #000;
             font-family: Arial, sans-serif;
             color: white;
             margin: 0;
@@ -86,50 +86,54 @@
             <button id="send-button" onclick="sendMessage()">Send</button>
         </div>
     </div>
-   <script>
-    // Backend URL dynamically set to match the origin of the deployed application
-   const backendUrl = window.location.origin + "/chat";
+    <script>
+        // Backend URL explicitly set to avoid dynamic origin issues
+        const backendUrl = "https://chatbot-ai-1-zb7c.onrender.com/chat";
 
-    async function sendMessage() {
-        const message = userInput.value.trim();
-        if (!message) return;
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('user-input');
+        const loadingDiv = document.getElementById('loading');
 
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'user-message';
-        userMessageDiv.textContent = message;
-        messagesDiv.appendChild(userMessageDiv);
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
 
-        userInput.value = '';
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'user-message';
+            userMessageDiv.textContent = message;
+            messagesDiv.appendChild(userMessageDiv);
 
-        loadingDiv.style.display = 'block';
-
-        try {
-            const response = await fetch(backendUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ message })
-            });
-
-            const data = await response.json();
-            loadingDiv.style.display = 'none';
-
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'bot-message';
-            botMessageDiv.textContent = data.response || "Error: Unable to get a response.";
-            messagesDiv.appendChild(botMessageDiv);
+            userInput.value = '';
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        } catch (error) {
-            loadingDiv.style.display = 'none';
-            const errorMessageDiv = document.createElement('div');
-            errorMessageDiv.className = 'bot-message';
-            errorMessageDiv.textContent = "Error: Could not connect to the server.";
-            messagesDiv.appendChild(errorMessageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            loadingDiv.style.display = 'block';
+
+            try {
+                const response = await fetch(backendUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'bot-message';
+                botMessageDiv.textContent = data.response || "Error: Unable to get a response.";
+                messagesDiv.appendChild(botMessageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.className = 'bot-message';
+                errorMessageDiv.textContent = "Error: Could not connect to the server.";
+                messagesDiv.appendChild(errorMessageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
