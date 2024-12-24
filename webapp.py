@@ -4,7 +4,7 @@ from flask_cors import CORS
 import requests
 import logging
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 # Allow requests from all origins
 CORS(app, resources={r"/*": {"origins": "https://chatbot-ai-1-zb7c.onrender.com"}})
 
