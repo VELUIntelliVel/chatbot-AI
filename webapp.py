@@ -22,6 +22,11 @@ def home():
     print(url_for('static', filename='image/AI.gif.gif'))  # This logs the generated URL
     return render_template("chatbot.html")
 
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify(response="Internal Server Error"), 500
+
+
 def send_request_to_convai(user_message):
     url = "https://api.convai.com/character/getResponse"
     headers = {"CONVAI-API-KEY": API_KEY}
