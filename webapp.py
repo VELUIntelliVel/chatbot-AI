@@ -19,8 +19,8 @@ logging.basicConfig(level=logging.DEBUG)
 def home():
     logging.debug("Serving chatbot.html")
     from flask import url_for
-    print(url_for('static', filename='image/AI.gif.gif'))  # This logs the generated URL
-    return render_template("chatbot.html")
+    backend_url = os.environ.get("BACKEND_URL", "http://127.0.0.1:5000/chat")
+    return render_template("chatbot.html", backend_url=backend_url)
 
 @app.errorhandler(500)
 def internal_error(error):
