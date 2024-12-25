@@ -6,7 +6,7 @@ import logging
 
 app = Flask(__name__, static_folder='static')
 # Allow requests from all origins
-CORS(app, origins=["https://chatbot-ai-1-zb7c.onrender.com"])
+CORS(app, resources={r"/*": {"origins": "https://chatbot-ai-qx5b.onrender.com"}}, methods=["POST", "GET"])
 
 # Configure API credentials
 API_KEY = "0c4d8e49f1244043408a7cced81993aa"
