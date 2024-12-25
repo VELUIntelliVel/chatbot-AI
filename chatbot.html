@@ -77,7 +77,7 @@
     </style>
 </head>
 <body>
-    <img src="{{ url_for('static', filename='image/AI.gif.gif') }}" alt="Chatbot Background">
+    <img src="https://chatbot-ai-1-zb7c.onrender.com/static/image/AI.gif.gif" alt="Chatbot Background">
     <div id="chat-container">
         <div id="messages"></div>
         <div id="loading">Loading...</div>
@@ -88,7 +88,7 @@
     </div>
     <script>
         // Backend URL explicitly set to avoid dynamic origin issues
-        const backendUrl = window.location.origin + "/chat";
+        const backendUrl = "https://chatbot-ai-1-zb7c.onrender.com/chat";
         const messagesDiv = document.getElementById('messages');
         const userInput = document.getElementById('user-input');
         const loadingDiv = document.getElementById('loading');
