@@ -18,9 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route("/", methods=["GET"])
 def home():
     logging.debug("Serving chatbot.html")
-    from flask import url_for
-    backend_url = os.environ.get("BACKEND_URL", "http://127.0.0.1:5000/chat")
-    return render_template("chatbot.html", backend_url=backend_url)
+    return render_template("chatbot.html", backend_url="https://chatbot-ai-1-zb7c.onrender.com/chat")
 
 @app.errorhandler(500)
 def internal_error(error):
