@@ -3,28 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot with Flask</title>
+    <title>Chatbot</title>
     <style>
-        /* Same responsive design from the previous example */
-        * {
+        body {
+            background: #000;
+            font-family: Arial, sans-serif;
+            color: white;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: url('AI.gif.gif') no-repeat center center fixed;
-            background-size: cover;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
         }
 
         #chat-container {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             border-radius: 10px;
             width: 90%;
             max-width: 500px;
@@ -33,50 +28,40 @@
             display: flex;
             flex-direction: column;
             padding: 10px;
-            overflow: hidden;
         }
-
         #messages {
             flex: 1;
             overflow-y: auto;
             margin-bottom: 10px;
             padding: 10px;
-            border-radius: 5px;
             background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
         }
-
         #messages div {
             margin-bottom: 10px;
         }
-
         .user-message {
             text-align: right;
             color: lightblue;
         }
-
         .bot-message {
             text-align: left;
             color: lightgreen;
         }
-
         #loading {
             text-align: center;
             color: lightgray;
             display: none;
         }
-
         #input-container {
             display: flex;
-            align-items: center;
         }
-
         #user-input {
             flex: 1;
             padding: 10px;
-            border-radius: 5px;
             border: 1px solid gray;
+            border-radius: 5px;
         }
-
         #send-button {
             margin-left: 10px;
             padding: 10px;
@@ -86,19 +71,13 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
         #send-button:hover {
             background: #45a049;
-        }
-
-        /* Style for the bold IntelliVel prefix */
-        .intellivel {
-            font-weight: bold;
-            color: lightblue; /* Change to whatever color you prefer */
         }
     </style>
 </head>
 <body>
+    <img src="{{ url_for('static', filename='image/AI.gif.gif') }}" alt="Chatbot Background">
     <div id="chat-container">
         <div id="messages"></div>
         <div id="loading">Loading...</div>
@@ -107,8 +86,9 @@
             <button id="send-button" onclick="sendMessage()">Send</button>
         </div>
     </div>
-
     <script>
+        // Backend URL explicitly set to avoid dynamic origin issues
+        const backendUrl = "https://chatbot-ai-qx5b.onrender.com/chat";
         const messagesDiv = document.getElementById('messages');
         const userInput = document.getElementById('user-input');
         const loadingDiv = document.getElementById('loading');
@@ -117,22 +97,18 @@
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Display user's message
             const userMessageDiv = document.createElement('div');
             userMessageDiv.className = 'user-message';
             userMessageDiv.textContent = message;
             messagesDiv.appendChild(userMessageDiv);
 
-            // Clear input and scroll down
             userInput.value = '';
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-            // Show loading animation
             loadingDiv.style.display = 'block';
 
             try {
-                // Send message to Flask backend
-                const response = await fetch("http://127.0.0.1:5000/chat", {
+             const response = await fetch(backendUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -140,31 +116,17 @@
                     body: JSON.stringify({ message })
                 });
 
-                const data = await response.json();
 
-                // Hide loading animation
+                const data = await response.json();
                 loadingDiv.style.display = 'none';
 
-                // Display bot's response with the prefix "IntelliVel:" (bold and styled)
                 const botMessageDiv = document.createElement('div');
                 botMessageDiv.className = 'bot-message';
-                if (data.response) {
-                    const intelliVelText = document.createElement('span');
-                    intelliVelText.className = 'intellivel';  // Apply bold style
-                    intelliVelText.textContent = "IntelliVel: ";  // Bold prefix
-                    botMessageDiv.appendChild(intelliVelText); // Add bold text
-                    botMessageDiv.appendChild(document.createTextNode(data.response));  // Add the bot response
-                } else {
-                    botMessageDiv.textContent = "Error: Unable to get a response.";
-                }
+                botMessageDiv.textContent = data.response || "Error: Unable to get a response.";
                 messagesDiv.appendChild(botMessageDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
             } catch (error) {
-                // Hide loading animation
                 loadingDiv.style.display = 'none';
-
-                // Display error message
                 const errorMessageDiv = document.createElement('div');
                 errorMessageDiv.className = 'bot-message';
                 errorMessageDiv.textContent = "Error: Could not connect to the server.";
@@ -172,13 +134,6 @@
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
         }
-
-        // Allow pressing "Enter" to send messages
-        userInput.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
     </script>
 </body>
 </html>
