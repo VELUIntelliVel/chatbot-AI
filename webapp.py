@@ -24,7 +24,6 @@ def home():
 def internal_error(error):
     return jsonify(response="Internal Server Error"), 500
 
-
 def send_request_to_convai(user_message):
     url = "https://api.convai.com/character/getResponse"
     headers = {"CONVAI-API-KEY": API_KEY}
@@ -35,10 +34,13 @@ def send_request_to_convai(user_message):
         "voiceResponse": "false"
     }
 
+    logging.debug(f"Payload: {payload}")
+    logging.debug(f"Headers: {headers}")
+
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
         response.raise_for_status()
-        logging.debug(f"ConvAI API Response: {response.json()}")
+        logging.debug(f"Raw ConvAI API response: {response.text}")
         bot_response = response.json().get("text", "No response available from the bot.")
         return bot_response
     except requests.exceptions.RequestException as e:
