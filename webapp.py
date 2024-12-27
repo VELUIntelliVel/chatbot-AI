@@ -27,24 +27,35 @@ def internal_error(error):
 def send_request_to_convai(user_message):
     url = "https://api.convai.com/character/getResponse"
     headers = {"CONVAI-API-KEY": API_KEY}
+
+    # Prepare payload as form-data
     payload = {
         "userText": user_message,
         "charID": CHARACTER_ID,
         "sessionID": SESSION_ID,
-        "voiceResponse": "false"
+        "voiceResponse": "false"  # Set to 'true' if you want audio responses
     }
 
     logging.debug(f"Payload: {payload}")
     logging.debug(f"Headers: {headers}")
 
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        # Send request with form-data format
+        response = requests.post(url, headers=headers, data=payload, timeout=10)
         response.raise_for_status()
         logging.debug(f"Raw ConvAI API response: {response.text}")
+
+        # Parse the bot's response
         bot_response = response.json().get("text", "No response available from the bot.")
         return bot_response
+    except requests.exceptions.Timeout:
+        logging.error("ConvAI API timed out.")
+        return "Error: ConvAI API timed out. Please try again later."
+    except requests.exceptions.HTTPError as e:
+        logging.error(f"HTTP error from ConvAI API: {e.response.status_code} - {e.response.text}")
+        return f"Error: ConvAI API returned status code {e.response.status_code}."
     except requests.exceptions.RequestException as e:
-        logging.error(f"Error calling ConvAI API: {e}")
+        logging.error(f"Request exception: {e}")
         return "Error: Unable to fetch response from the bot."
 
 @app.route("/chat", methods=["POST"])
