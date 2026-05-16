@@ -9,8 +9,8 @@ app = Flask(__name__, static_folder='static')
 CORS(app, resources={r"/*": {"origins": "*"}}, methods=["POST", "GET"])
 
 # Configure API credentials
-API_KEY = "41a4c401e129df853a253ec1c18e054e"
-CHARACTER_ID = "1553750c-c46f-11ef-af84-42010a7be016"
+API_KEY = "your_API_key"
+CHARACTER_ID = "your_id"
 SESSION_ID = -1
 
 logging.basicConfig(level=logging.DEBUG)
